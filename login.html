@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン画面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://girlydrop.com/wp-content/uploads/post/p3988.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container, .register-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            display: none;
+        }
+        .login-container.active, .register-container.active {
+            display: block;
+        }
+        .login-container h2, .register-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .login-button, .register-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .login-button:hover, .register-button:hover {
+            background-color: #0056b3;
+        }
+        .additional-links {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .additional-links a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .additional-links a:hover {
+            text-decoration: underline;
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- ログインフォーム -->
+    <div class="login-container active" id="login-form">
+        <h2>ログイン</h2>
+        <form action="/login" method="post">
+            <div class="form-group">
+                <label for="username">ユーザー名またはメールアドレス</label>
+                <input type="text" id="username" name="username" placeholder="ユーザー名またはメールアドレスを入力" required>
+            </div>
+            <div class="form-group">
+                <label for="password">パスワード</label>
+                <input type="password" id="password" name="password" placeholder="パスワードを入力" required>
+            </div>
+            <button type="submit" class="login-button">ログイン</button>
+            <div class="additional-links">
+                <a href="javascript:void(0);" onclick="showRegisterForm()">新規登録はこちら</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- 新規登録フォーム -->
+    <div class="register-container" id="register-form">
+        <h2>新規登録</h2>
+        <form id="registerForm" action="/register" method="post" onsubmit="return handleRegistration();">
+            <div class="form-group">
+                <label for="new-username">ユーザー名</label>
+                <input type="text" id="new-username" name="new-username" placeholder="ユーザー名を入力" required>
+            </div>
+            <div class="form-group">
+                <label for="new-email">メールアドレス</label>
+                <input type="email" id="new-email" name="new-email" placeholder="メールアドレスを入力" required>
+            </div>
+            <div class="form-group">
+                <label for="invite-code">招待コード</label>
+                <input type="text" id="invite-code" name="invite-code" placeholder="招待コードを入力" required>
+            </div>
+            <button type="button" class="register-button" onclick="sendInviteCode()">招待コードを確認</button>
+
+            <div id="password-container" class="hidden">
+                <div class="form-group">
+                    <label for="new-password">パスワード</label>
+                    <input type="password" id="new-password" name="new-password" placeholder="パスワードを設定" required>
+                </div>
+                <button type="submit" class="register-button">登録</button>
+            </div>
+            <div id="error-message" class="error-message"></div>
+            <div class="additional-links">
+                <a href="javascript:void(0);" onclick="showLoginForm()">ログイン画面に戻る</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let validInviteCode = 'create2024';  // 招待コードを「create2024」に変更
+
+        // ログインフォームを表示
+        function showLoginForm() {
+            document.getElementById('login-form').classList.add('active');
+            document.getElementById('register-form').classList.remove('active');
+        }
+
+        // 新規登録フォームを表示
+        function showRegisterForm() {
+            document.getElementById('login-form').classList.remove('active');
+            document.getElementById('register-form').classList.add('active');
+        }
+
+        // 招待コードを確認
+        function sendInviteCode() {
+            var enteredCode = document.getElementById('invite-code').value;
+
+            // 招待コードが一致するかを確認
+            if (enteredCode === validInviteCode) {
+                // 招待コードが有効な場合
+                document.getElementById('password-container').classList.remove('hidden');
+                document.getElementById('error-message').textContent = '';  // エラーメッセージをリセット
+                alert("招待コードが確認されました。パスワードを設定してください。");
+
+                // 「招待コードを確認」ボタンを非表示にする
+                document.querySelector('button[onclick="sendInviteCode()"]').style.display = 'none';
+            } else {
+                // 招待コードが無効な場合
+                document.getElementById('error-message').textContent = "無効な招待コードです。";
+            }
+        }
+
+        // 新規登録フォームの処理
+        function handleRegistration() {
+            var enteredPassword = document.getElementById('new-password').value;
+
+            // パスワードが入力されていない場合
+            if (!enteredPassword) {
+                document.getElementById('error-message').textContent = "パスワードを入力してください。";
+                return false; // フォーム送信をキャンセル
+            }
+
+            // 登録処理が成功した場合
+            alert("登録が完了しました。ログイン画面に戻ります。");
+
+            // ログイン画面に戻す
+            setTimeout(function() {
+                showLoginForm(); // 登録完了後にログイン画面に戻る
+            }, 2000); // 2秒後に戻る
+
+            return false; // 実際のフォーム送信を防ぐ
+        }
+    </script>
+</body>
+</html>
