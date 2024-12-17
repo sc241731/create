@@ -1,4 +1,4 @@
- project
+# photo_project
 プロジェクトの説明です。
 個人の写真投稿サイトを作りたいです。
 https://github.com/UTokyo-IPP/utokyo-ipp.github.io/blob/master/README.md
