@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ログイン画面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('https://girlydrop.com/wp-content/uploads/post/p3988.jpg') no-repeat center center fixed;
+            background-size: cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container, .register-container, .dashboard-container {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            display: none;
+        }
+        .login-container.active, .register-container.active, .dashboard-container.active {
+            display: block;
+        }
+        .login-container h2, .register-container h2, .dashboard-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .login-button, .register-button, .upload-button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .login-button:hover, .register-button:hover, .upload-button:hover {
+            background-color: #0056b3;
+        }
+        .additional-links {
+            margin-top: 10px;
+            text-align: center;
+        }
+        .additional-links a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .additional-links a:hover {
+            text-decoration: underline;
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .hidden {
+            display: none;
+        }
+        .dashboard-posts img {
+            width: 100%;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- ログインフォーム -->
+    <div class="login-container active" id="login-form">
+        <h2>ログイン</h2>
+        <form action="javascript:void(0);" onsubmit="handleLogin();">
+            <div class="form-group">
+                <label for="login-username">ユーザー名</label>
+                <input type="text" id="login-username" placeholder="ユーザー名" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">パスワード</label>
+                <input type="password" id="login-password" placeholder="パスワード" required>
+            </div>
+            <button type="submit" class="login-button">ログイン</button>
+            <div class="error-message" id="login-error"></div>
+            <div class="additional-links">
+                <a href="javascript:void(0);" onclick="showRegisterForm()">新規登録はこちら</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- 新規登録フォーム -->
+    <div class="register-container" id="register-form">
+        <h2>新規登録</h2>
+        <form action="javascript:void(0);" onsubmit="handleRegistration();">
+            <div class="form-group">
+                <label for="new-username">ユーザー名</label>
+                <input type="text" id="new-username" placeholder="ユーザー名" required>
+            </div>
+            <div class="form-group">
+                <label for="new-email">メールアドレス</label>
+                <input type="email" id="new-email" placeholder="メールアドレス" required>
+            </div>
+            <div class="form-group">
+                <label for="invite-code">招待コード</label>
+                <input type="text" id="invite-code" placeholder="招待コードを入力" required>
+            </div>
+            <button type="button" class="register-button" onclick="verifyInviteCode()">招待コード確認</button>
+            <div id="verification-container" class="hidden">
+                <div class="form-group">
+                    <label for="new-password">パスワード</label>
+                    <input type="password" id="new-password" placeholder="パスワード" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password">パスワード確認</label>
+                    <input type="password" id="confirm-password" placeholder="もう一度パスワードを入力" required>
+                </div>
+                <button type="submit" class="register-button">登録</button>
+            </div>
+            <div id="error-message" class="error-message"></div>
+            <div class="additional-links">
+                <a href="javascript:void(0);" onclick="showLoginForm()">ログイン画面に戻る</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- ダッシュボード -->
+    <div class="dashboard-container" id="dashboard">
+        <h2>ダッシュボード</h2>
+        <div class="dashboard-posts" id="user-posts"></div>
+        <div>
+            <h3>写真投稿</h3>
+            <form action="javascript:void(0);" onsubmit="handleImageUpload();">
+                <div class="form-group">
+                    <input type="file" id="image-upload" accept="image/*" onchange="previewImage(event);" required>
+                </div>
+                <div id="image-preview-container" class="hidden">
+                    <img id="image-preview" width="100%" alt="プレビュー">
+                </div>
+                <button type="submit" class="upload-button">画像を投稿</button>
+            </form>
+            <button class="upload-button" onclick="logout()">ログアウト</button>
+        </div>
+    </div>
+
+    <script>
+        const correctInviteCode = 'create2024'; // 正しい招待コード
+        const users = {
+            'whitelily': 'password123' // 固定のユーザー情報
+        };
+
+        // 登録画面の表示
+        function showRegisterForm() {
+            document.getElementById('login-form').classList.remove('active');
+            document.getElementById('register-form').classList.add('active');
+        }
+
+        // ログイン画面の表示
+        function showLoginForm() {
+            document.getElementById('register-form').classList.remove('active');
+            document.getElementById('login-form').classList.add('active');
+        }
+
+        // 招待コードの確認
+        function verifyInviteCode() {
+            const inviteCode = document.getElementById('invite-code').value;
+            if (inviteCode !== correctInviteCode) {
+                alert("無効な招待コードです。");
+            } else {
+                document.getElementById('verification-container').classList.remove('hidden');
+            }
+        }
+
+        // 新規登録フォームの処理
+        function handleRegistration() {
+            const password = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (password !== confirmPassword) {
+                document.getElementById('error-message').textContent = "パスワードが一致しません。もう一度入力してください。";
+                return false;
+            }
+
+            alert("登録が完了しました。ログイン画面に戻ります。");
+            showLoginForm();
+            return false;
+        }
+
+        // ログイン処理
+        function handleLogin() {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            const errorMessage = document.getElementById('login-error');
+
+            if (users[username] && users[username] === password) {
+                sessionStorage.setItem('loggedIn', 'true');
+                showDashboard();
+                return false;
+            } else {
+                errorMessage.textContent = "ユーザー名またはパスワードが間違っています。";
+                return false;
+            }
+        }
+
+        // ダッシュボード表示
+        function showDashboard() {
+            document.getElementById('login-form').classList.remove('active');
+            document.getElementById('register-form').classList.remove('active');
+            document.getElementById('dashboard').classList.add('active');
+        }
+
+        // ログアウト処理
+        function logout() {
+            sessionStorage.setItem('loggedIn', 'false');
+            showLoginForm();
+        }
+
+        // 画像プレビュー表示
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const imagePreview = document.getElementById('image-preview');
+                    imagePreview.src = e.target.result;
+                    document.getElementById('image-preview-container').classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 写真投稿
+        function handleImageUpload() {
+            const fileInput = document.getElementById('image-upload');
+            const file = fileInput.files[0];
+            if (file) {
+                const imageContainer = document.getElementById('user-posts');
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                imageContainer.appendChild(img);
+                alert("画像が投稿されました！");
+            }
+        }
+
+        // ページ読み込み時の処理
+        window.onload = function() {
+            if (sessionStorage.getItem('loggedIn') === 'true') {
+                showDashboard();
+            } else {
+                showLoginForm();
+            }
+        }
+    </script>
+</body>
+</html>
