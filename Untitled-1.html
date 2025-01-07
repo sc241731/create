@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>写真共有アプリ</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-image: url('https://girlydrop.com/wp-content/uploads/post/p3628.jpg'); /* 新しい背景画像 */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            height: 100vh;
+        }
+
+        header {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-bottom: 1px solid #ddd;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        header h1 {
+            font-size: 24px;
+            margin: 0;
+        }
+
+        header nav a {
+            margin-left: 15px;
+            text-decoration: none;
+            color: #007BFF;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 15px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .post-form {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .post-form input[type="file"] {
+            margin-bottom: 10px;
+        }
+
+        .post-form textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            resize: none;
+        }
+
+        .post-form button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .post {
+            background-color: #fff;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .post img {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .post h3 {
+            margin: 10px 0 5px;
+            font-size: 18px;
+        }
+
+        .post p {
+            margin: 0 0 10px;
+        }
+
+        .like-comment {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .like-comment button {
+            background-color: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>写真共有アプリ</h1>
+        <nav>
+            <a href="#">タイムライン</a>
+            <a href="#">プロフィール</a>
+            <!-- ログインリンクに変更 -->
+            <a href="secrettime.html">ログイン</a>
+        </nav>
+    </header>
+
+    <div class="container">
+        <!-- 投稿フォーム -->
+        <div class="post-form">
+            <h2>写真を投稿</h2>
+            <form id="postForm" onsubmit="handlePost(event)">
+                <input type="file" id="postImage" accept="image/*" required>
+                <textarea id="postCaption" rows="3" placeholder="キャプションを入力してください"></textarea>
+                <button type="submit">投稿</button>
+            </form>
+        </div>
+
+        <!-- 投稿リスト -->
+        <div id="postList">
+            <!-- ここに投稿が追加される -->
+        </div>
+    </div>
+
+    <script>
+        const postList = document.getElementById('postList');
+
+        // 投稿を処理する関数
+        function handlePost(event) {
+            event.preventDefault();
+            
+            const imageInput = document.getElementById('postImage');
+            const captionInput = document.getElementById('postCaption');
+
+            if (imageInput.files.length === 0) {
+                alert("画像を選択してください！");
+                return;
+            }
+
+            const file = imageInput.files[0];
+            const caption = captionInput.value;
+
+            // 投稿HTMLを作成
+            const post = document.createElement('div');
+            post.classList.add('post');
+
+            const imageUrl = URL.createObjectURL(file);
+
+            post.innerHTML = `
+                <img src="${imageUrl}" alt="投稿画像">
+                <h3>ユーザー名</h3>
+                <p>${caption}</p>
+                <div class="like-comment">
+                    <button onclick="likePost(this)">いいね</button>
+                    <button>コメント</button>
+                </div>
+            `;
+
+            postList.prepend(post);
+
+            // フォームをリセット
+            imageInput.value = '';
+            captionInput.value = '';
+        }
+
+        // いいねボタンの処理
+        function likePost(button) {
+            const currentText = button.textContent;
+            if (currentText === 'いいね') {
+                button.textContent = 'いいね済み';
+                button.style.backgroundColor = '#ffcccc';
+            } else {
+                button.textContent = 'いいね';
+                button.style.backgroundColor = '#f0f0f0';
+            }
+        }
+    </script>
+</body>
+</html>
